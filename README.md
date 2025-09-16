@@ -1,6 +1,6 @@
 # Shopping List App
 
-<span align="center"><img align="center" height="500" width="200" src="./image-one.png"/></span>
+<span align="center"><img align="center" height="500" width="200" src="./image_one.png"/></span>
 <span align="center"><img align="center" height="500" width="200" src="./image-two.png"/></span>
 <span align="center"><img align="center" height="500" width="200" src="./image-three.png"/></span>
 
