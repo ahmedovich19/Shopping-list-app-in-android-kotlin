@@ -1,6 +1,7 @@
 package com.example.myshoppinglistapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -23,6 +24,12 @@ import androidx.compose.ui.unit.dp
 import com.example.myshoppinglistapp.ui.theme.MyShoppingListAppTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
+import androidx.navigation.compose.rememberNavController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,8 +38,40 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyShoppingListAppTheme {
                 Scaffold( modifier = Modifier.fillMaxSize() ) {
-                    ShoppingListApp()
+                    //ShoppingListApp()
+                    Navigation()
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun Navigation(){
+    val navController = rememberNavController()
+    val viewModel : LocationViewModel = viewModel()
+    val context = LocalContext.current
+    val locationUtils = LocationUtils(context)
+
+    NavHost(navController, startDestination = "shoppinglistscreen"){
+        composable("shoppinglistscreen"){
+            val currentAddress = viewModel.address.value.firstOrNull()?.formatted_address ?: "No Address"
+            Log.d("ShoppingListScreen", "Recomposing with address: $currentAddress")
+            ShoppingListApp(
+                locationUtils = locationUtils,
+                viewModel = viewModel,
+                navController = navController,
+                context = context,
+                address = currentAddress
+            )
+        }
+        dialog("locationscreen"){backstack->
+            viewModel.location.value?.let{it1 ->
+                LocationSelectionScreen(location = it1, onLocationSelected = {locationdata->
+                    Log.d("LocationSelection", "Location selected: ${locationdata.latitude},${locationdata.longitude}") // Add this
+                    viewModel.fetchAddress("${locationdata.latitude},${locationdata.longitude}")
+                    navController.popBackStack()
+                })
             }
         }
     }
